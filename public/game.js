@@ -3,6 +3,9 @@
 
   // Gameplay tuning
   const CONFIG = {
+    // 👋 Change this to your GitHub username, push, and look for it on the live game screen
+    githubUsername: 'thivindu',
+
     startSpeed: 6,
     maxSpeed: 13,
     acceleration: 0.0015,   // speed gained per frame
@@ -312,6 +315,9 @@
     const flashing = performance.now() < flashUntil && Math.floor(performance.now() / 150) % 2 === 0;
     const current = flashing ? '' : pad(score);
     drawText(`HI ${pad(hiScore)}  ${current.padStart(5, ' ')}`, W - 20, 24, 12, 'right');
+    if (CONFIG.githubUsername) {
+      drawText(`@${CONFIG.githubUsername}`, 20, 24, 12, 'left');
+    }
 
     if (state === 'ready') {
       drawText(CONFIG.startText, W / 2, 90, 12);
