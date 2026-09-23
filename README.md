@@ -38,6 +38,7 @@ A browser endless runner inspired by Chrome's offline dinosaur game. It's plain 
 │   ├── style.css                  # theme tokens (colors)
 │   └── game.js                    # game logic; tune gameplay in CONFIG
 ├── vercel.json                    # static hosting config
+├── PREREQUISITES.md               # what you need before deploying
 └── README.md
 ```
 
@@ -141,14 +142,7 @@ Follow this once to go from an empty machine to a live site. After that, every c
 
 ### Prerequisites
 
-| Tool | Check | Install |
-|---|---|---|
-| Git | `git --version` | https://git-scm.com |
-| Node.js 18+ | `node --version` | https://nodejs.org |
-| GitHub CLI (optional, used below) | `gh --version` | https://cli.github.com, then `gh auth login` |
-| Vercel CLI | `vercel --version` | `npm install --global vercel` |
-
-You also need a GitHub account and a Vercel account. The free Hobby plan is fine.
+You need a GitHub account, a Vercel account, Git, Node.js 20+ and the Vercel CLI. See **[PREREQUISITES.md](PREREQUISITES.md)** for the full list, including the permissions you need and options for running this with a group.
 
 ### 1. Get the code and run it locally
 
