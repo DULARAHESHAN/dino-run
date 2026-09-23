@@ -1,0 +1,101 @@
+name: CI/CD — Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# If you push twice quickly, cancel the older run for the same branch
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  IS_PRODUCTION: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+
+jobs:
+  # ── Stage 1: Continuous Integration ──────────────────────────────
+  validate:
+    name: ✅ Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Lint HTML
+        run: npx --yes htmlhint "public/**/*.html"
+
+      - name: Check JavaScript syntax
+        run: node --check public/game.js
+
+  # ── Stage 2: Continuous Deployment ───────────────────────────────
+  deploy:
+    name: 🚀 Deploy (${{ github.event_name == 'pull_request' && 'preview' || 'production' }})
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Stamp build info into the page
+        env:
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          BUILD_TIME="$(date -u +'%Y-%m-%d %H:%M UTC')"
+          sed -i \
+            -e "s|__COMMIT_SHA__|${SHA}|g" \
+            -e "s|__BUILD_TIME__|${BUILD_TIME}|g" \
+            -e "s|__REPO__|${REPO}|g" \
+            -e "s|__RUN_URL__|${RUN_URL}|g" \
+            public/index.html
+
+      - name: Pull Vercel project settings
+        run: |
+          VERCEL_ENV=$([ "$IS_PRODUCTION" = "true" ] && echo production || echo preview)
+          vercel pull --yes --environment="$VERCEL_ENV" --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Build
+        run: |
+          PROD_FLAG=$([ "$IS_PRODUCTION" = "true" ] && echo "--prod" || echo "")
+          vercel build $PROD_FLAG --token="${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          PROD_FLAG=$([ "$IS_PRODUCTION" = "true" ] && echo "--prod" || echo "")
+          URL=$(vercel deploy --prebuilt $PROD_FLAG --token="${{ secrets.VERCEL_TOKEN }}")
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Summary
+        run: |
+          {
+            echo "## 🦖 Deployed!"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Environment** | $([ "$IS_PRODUCTION" = "true" ] && echo production || echo preview) |"
+            echo "| **Commit** | \`${GITHUB_SHA::7}\` |"
+            echo "| **URL** | ${{ steps.deploy.outputs.url }} |"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dino Run</title>
+  <meta name="description" content="A Chrome-style dino game deployed to Vercel through a GitHub Actions CI/CD pipeline.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦖</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">A tiny endless runner</p>
+      <h1>Dino Run 🦖</h1>
+      <p class="tagline">Jump the cacti, dodge the birds, beat your high score.</p>
+    </header>
+
+    <div class="stage">
+      <canvas id="game" aria-label="Dino jumping game. Press space or tap to jump." role="img"></canvas>
+    </div>
+
+    <p class="controls">
+      <kbd>Space</kbd> / <kbd>↑</kbd> jump &nbsp;·&nbsp; <kbd>↓</kbd> duck &nbsp;·&nbsp; tap to jump on mobile
+    </p>
+
+    <section class="pipeline" aria-label="How this page got here">
+      <h2>How this page got here</h2>
+      <ol>
+        <li><span class="step-icon">💻</span><span class="step-name">Code</span><span class="step-desc">Edit locally</span></li>
+        <li><span class="step-icon">🐙</span><span class="step-name">GitHub</span><span class="step-desc">git push</span></li>
+        <li><span class="step-icon">⚙️</span><span class="step-name">Actions</span><span class="step-desc">Validate &amp; build</span></li>
+        <li><span class="step-icon">▲</span><span class="step-name">Vercel</span><span class="step-desc">Deploy to edge</span></li>
+        <li><span class="step-icon">🌍</span><span class="step-name">Live</span><span class="step-desc">Seconds later</span></li>
+      </ol>
+    </section>
+
+    <!-- The pipeline replaces these placeholders with real values at deploy time -->
+    <footer id="build" class="build"
+            data-commit="__COMMIT_SHA__"
+            data-time="__BUILD_TIME__"
+            data-repo="__REPO__"
+            data-run="__RUN_URL__">Running locally</footer>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
